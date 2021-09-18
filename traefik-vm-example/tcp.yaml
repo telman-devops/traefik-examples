@@ -1,0 +1,14 @@
+tcp:
+    routers:
+        allbackendrouter:
+            rule: "HostSNI(`*`)"
+            service: allbackend
+   
+    services:
+        allbackend:
+            loadBalancer:
+                servers:
+                    - address: "telmanmac:1111"
+                    - address: "telmanmac:2222"
+                    - address: "telmanmac:3333"
+                    - address: "telmanmac:4444"
