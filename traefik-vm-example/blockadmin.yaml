@@ -1,0 +1,19 @@
+http:
+    routers:
+        allbackendrouter:
+            rule: "Host(`telmanmac`)"
+            service: allbackend
+        adminblocker:
+            rule: "Host(`telmanmac`) && Path(`/admin`)"
+            service: blackhole
+    services:
+        blackhole:
+            loadBalancer:
+                servers:
+        allbackend:
+            loadBalancer:
+                servers:
+                    - url: "http://telmanmac:1111/"
+                    - url: "http://telmanmac:2222/"
+                    - url: "http://telmanmac:3333/"
+                    - url: "http://telmanmac:4444/"
