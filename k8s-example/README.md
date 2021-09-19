@@ -82,7 +82,8 @@ Paste Traefik LoadBalancer IP in `/etc/hosts`
 vi /etc/hosts
 172.16.16.240  nginx.example.com
 ```
-**1. Simple IngressRoutes**
+
+### [Step 1] Simple IngressRoutes
 
 Create IngressRoute
 ```
@@ -109,7 +110,7 @@ _However we can use Pebble_
 
 ![level](./images/pebble.png)
 
-1. Deploy Pebble to k8s
+### [Step 1] Deploy Pebble to k8s
 
 Take installation guids from [Github](https://github.com/jupyterhub/pebble-helm-chart)
 
@@ -136,7 +137,7 @@ Look cm
 k -n traefik get cm pebble -o yaml
 ```
 
-2. Update Traefik Helm values file
+### [Step 2] Update Traefik Helm values file
 
 vim `/tmp/traefik-values.yaml`
 
@@ -173,3 +174,11 @@ Check TLS in Traefik UI
 ```
 k -n traefik port-forward traefik-*** 9000:9000
 ```
+
+# Part 4 | Exploring Middlewares
+
+Examples in `ingress-demo/traefik/middlewares` folder
+
+- Add Prefix
+- Strip Prefix
+- Redirect Scheme
