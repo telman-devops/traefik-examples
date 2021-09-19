@@ -100,3 +100,76 @@ delete ingressroute nginx
 - Example 6 explain how use || and &&
 
 > More Examples in [Kubernetes IngressRoute](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/)
+
+# Part 3 | Dealing with TLS certificates
+
+_We use local kubernetes cluster like Vagrant, and /etc/hosts for DNS, there we can`t use external internet like AWS Route 53 to check Let's encrypt._
+
+_However we can use Pebble_
+
+![level](./images/pebble.png)
+
+1. Deploy Pebble to k8s
+
+Take installation guids from [Github](https://github.com/jupyterhub/pebble-helm-chart)
+
+Modify pebble values
+```
+helm show values jupyterhub/pebble > /tmp/pebble-values.yaml
+
+env:
+  # uncomment this env, only fof local cluster, with out DNS like Route53
+  - name: PEBBLE_VA_ALWAYS_VALID
+    value: "1"
+
+coredns:
+  enabled: false
+```
+
+Install pebble
+```
+helm install pebble jupyterhub/pebble --values /tmp/pebble-values.yaml -n traefik
+```
+
+Look cm
+```
+k -n traefik get cm pebble -o yaml
+```
+
+2. Update Traefik Helm values file
+
+vim `/tmp/traefik-values.yaml`
+
+```
+persistence:
+  enabled: true
+  name: data
+  accessMode: ReadWriteOnce
+  size: 128Mi
+  path: /data
+  annotations: {}
+
+additionalArguments:
+  - --certificatesresolvers.pebble.acme.tlschallenge=true
+  - --certificatesresolvers.pebble.acme.email=test@hello.com
+  - --certificatesresolvers.pebble.acme.storage=/data/acme.json
+  - --certificatesresolvers.pebble.acme.caserver=https://pebble/dir
+
+volumes:
+  - name: pebble
+    mountPath: "/certs"
+    type: configMap
+
+env:
+  - name: LEGO_CA_CERTIFICATES
+    value: "/certs/root-cert.pem"
+```
+
+- Upgrade Traefik helm release
+- Examples in `ingress-demo/traefik/tls-ingress-routes` folder
+
+Check TLS in Traefik UI
+
+```
+k -n traefik port-forward traefik-*** 9000:9000
+```
