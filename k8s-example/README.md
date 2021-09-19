@@ -1,4 +1,4 @@
-# Traefik example for kubernetes
+# Part 1 | Prerequisite
 
 ### [Step 1] Provision a k8s cluster - using vagrant
 Folder vagrant-provisioning
@@ -63,3 +63,40 @@ Check traefik UI
 ```
 k -n traefik port-forward traefik-*** 9000:9000
 ```
+
+# Part 2 | Creating IngressRoutes
+
+Create deployments
+```
+cd ingress-demo
+k apply -f nginx-deploy-main.yaml -f nginx-deploy-green.yaml -f nginx-deploy-blue.yaml
+```
+Make expose
+```
+k expose deploy nginx-deploy-main --port 80
+k expose deploy nginx-deploy-blue --port 80
+k expose deploy nginx-deploy-green --port 80
+```
+Paste Traefik LoadBalancer IP in `/etc/hosts`
+```
+vi /etc/hosts
+172.16.16.240  nginx.example.com
+```
+**1. Simple IngressRoutes**
+
+Create IngressRoute
+```
+k apply -f ingress-demo/traefik/simple-ingress-routes/1-ingressroute.yaml
+```
+Delete simple IngressRoutes
+```
+delete ingressroute nginx
+```
+
+- Example 3 explain how create multiple routes
+- Example 4 with Headers
+- - `curl -H "FROM: test@example.com" nginx.example.com`
+- Example 5 with Headers Regexp
+- Example 6 explain how use || and &&
+
+> More Examples in [Kubernetes IngressRoute](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/)
