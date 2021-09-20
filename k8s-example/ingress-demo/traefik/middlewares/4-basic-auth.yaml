@@ -9,6 +9,7 @@ spec:
 ---
 # Example:
 #   htpasswd -nb venkat hello | base64
+#
 #   dmVua2F0OiRhcHIxJE52L0lPTDZlJDRqdFlwckpjUk1aWU5aeG45M0xCNi8KCg==
 
 apiVersion: v1
