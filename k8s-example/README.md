@@ -1,6 +1,7 @@
 # Part 1 | Prerequisite
 
 ### [Step 1] Provision a k8s cluster - using vagrant
+
 Folder vagrant-provisioning
 ```
 cd vagrant-provisioning
