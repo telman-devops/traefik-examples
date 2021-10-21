@@ -10,13 +10,20 @@
 - Routers maps entrypoint to services through rules
 - Middlewares are optional
 
+### Traefik Configuration
+- Static configurations include entry points and resolvers
+- Dynamic configurations includes services, routers, middleswares
+
+### Proxying modes (TCP and HTTP)
+- Layer 4 (tcp) layer 7 (http)
+
 ### Emample
 - Install Traefik
 - Layer 7 Proxying
 - - Proxy to 4 Backends
 - - Conditional app1 app2
 - - Prevent admin access
-- - Weighred Round Robin
+- - Weighted Round Robin
 - Layer 4 Proxying 
 - Enable HTTPS on Traefik
 - Disable TLS 1.0/1.1
