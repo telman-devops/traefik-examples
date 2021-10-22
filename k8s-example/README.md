@@ -4,8 +4,10 @@
 
 Folder vagrant-provisioning
 ```
+
 cd vagrant-provisioning
 vagrant up
+
 ```
 
 ### [Step 2] Deploy load balancing solution - metallb
@@ -14,19 +16,23 @@ vagrant up
 
 * define and deploy a [configmap](https://metallb.universe.tf/configuration/#layer-2-configuration) _(don`t fogot change addresses)_
 
-> More info about MetalLB in lesson [Kube 33.1] 
+_More info about MetalLB in lesson [Kube 33.1]_
 
 ### [Step 3] Make sure metallb works as expected
 
 ```
+
 k create deploy nginx --image nginx
 k expose deploy nginx --port 80 --type LoadBalancer
+
 ```
 
 After checkout, delete 
 ```
+
 k delete deploy nginx
 k delete svc nginx
+
 ```
 
 ### [Step 4] Setup dynamic storage provisioning - nfs
@@ -34,11 +40,13 @@ k delete svc nginx
 * Deploy dynamic NFS provisioning
 
 ```
+
 k get sc
 # nfs-client
+
 ```
 
-> More info about NFS in lesson [Kube 23.1] 
+_More info about NFS in lesson [Kube 23.1]_
 
 ### [Step 5] Install Traefik by Helm chart
 
@@ -46,7 +54,10 @@ k get sc
 
 Modify traefik values
 ```
+
 helm show values traefik/traefik > /tmp/traefik-values.yaml
+
+vi traefik-values.yaml
 
 persistence:
   enabled: true
@@ -55,44 +66,60 @@ persistence:
   size: 128Mi
   path: /data
   annotations: {}
+
 ```
 Install traefik
 ```
+
 helm install traefik traefik/traefik --values /tmp/traefik-values.yaml -n traefik --create-namespace
+
 ```
 Check traefik UI
 ```
-k -n traefik port-forward traefik-*** 9000:9000
+
+k -n traefik get po
+k -n traefik port-forward traefik-{POD_NAME} 9000:9000
+
 ```
 
 # Part 2 | Creating IngressRoutes
 
 Create deployments
 ```
+
 cd ingress-demo
 k apply -f nginx-deploy-main.yaml -f nginx-deploy-green.yaml -f nginx-deploy-blue.yaml
+
 ```
 Make expose
 ```
+
 k expose deploy nginx-deploy-main --port 80
 k expose deploy nginx-deploy-blue --port 80
 k expose deploy nginx-deploy-green --port 80
+
 ```
 Paste Traefik LoadBalancer IP in `/etc/hosts`
 ```
+
 vi /etc/hosts
 172.16.16.240  nginx.example.com
+
 ```
 
 ### [Step 1] Simple IngressRoutes
 
 Create IngressRoute
 ```
+
 k apply -f ingress-demo/traefik/simple-ingress-routes/1-ingressroute.yaml
+
 ```
 Delete simple IngressRoutes
 ```
+
 delete ingressroute nginx
+
 ```
 
 - Example 3 explain how create multiple routes
@@ -117,6 +144,7 @@ Take installation guids from [Github](https://github.com/jupyterhub/pebble-helm-
 
 Modify pebble values
 ```
+
 helm show values jupyterhub/pebble > /tmp/pebble-values.yaml
 
 env:
@@ -126,16 +154,21 @@ env:
 
 coredns:
   enabled: false
+
 ```
 
 Install pebble
 ```
+
 helm install pebble jupyterhub/pebble --values /tmp/pebble-values.yaml -n traefik
+
 ```
 
-Look cm
+Look config map
 ```
+
 k -n traefik get cm pebble -o yaml
+
 ```
 
 ### [Step 2] Update Traefik Helm values file
@@ -143,6 +176,7 @@ k -n traefik get cm pebble -o yaml
 vim `/tmp/traefik-values.yaml`
 
 ```
+
 persistence:
   enabled: true
   name: data
@@ -165,6 +199,7 @@ volumes:
 env:
   - name: LEGO_CA_CERTIFICATES
     value: "/certs/root-cert.pem"
+
 ```
 
 - Upgrade Traefik helm release
@@ -180,6 +215,7 @@ k -n traefik port-forward traefik-*** 9000:9000
 
 Examples in `ingress-demo/traefik/middlewares` folder
 
-- Add Prefix
-- Strip Prefix
-- Redirect Scheme
+- addPrefix
+- stripPrefix
+- redirectScheme
+- basicAuth
